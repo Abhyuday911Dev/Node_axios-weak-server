@@ -1,0 +1,151 @@
+first install express generator globally from command terminal
+
+npm i express-generator -g                   (do it only once for a laptop)
+
+now you can build an app without writting code manualy
+
+1) now open the location where you want to make the app folder
+2) remove the existing path from the location and write cmd and press enter
+
+3) now enter command in the cmd -> 
+
+	express name_of_appfolder --view=ejs
+
+	cd name_of_appfolder
+
+	npm i
+
+	//now the required folder is made you can open it from the location you created folder or write in cmd
+
+	code .
+
+4) now vs code opens
+5) now open terminal and install required packages 
+
+	npm i express-session passport passport-local passport-local-mongoose mongoose
+
+//nodemon was already installed globally during previous projects
+
+6) open app.js write the following code (from the screenshot) in between view engine & logger
+
+	app.use(require("express-session")({
+  		resave: false,
+  		saveUninitialized: false,
+  		secret: "kuchbhi"
+	}));
+
+	app.use(passport.initialize());
+	app.use(passport.session());
+	passport.serializeUser(usersRouter.serializeUser());
+	passport.deserializeUser(usersRouter.deserializeUser());
+
+//make sure passport is alredy required
+	const passport = require('passport');
+//it gets required automatically by intellisense when you press enter to the autocomplete of app.use(passpo..) 
+
+// here userRouter is the variable in which users.js has been required -> var usersRouter = require('./routes/users');
+
+
+7) now open users.js remove the existing code and paste the code provided in the screenshot
+	
+	var mongoose = require('mongoose');
+	var plm = require('passport-local-mongoose');
+
+	mongoose.connect("mongodb://localhost/login_authenticationdb");
+
+	var userSchema = mongoose.Schema({
+	  name: String,
+	  username: String,
+	  password: String
+	});
+
+	userSchema.plugin(plm);
+
+	module.exports = mongoose.model("user", userSchema);
+
+8) open index.js add
+	const userModel = require("./users");
+	const passport = require('passport');
+
+//paste code for registering user
+
+	router.post("/register", function (req, res) {
+	  const userData = new userModel({
+	    name: req.body.name,
+	    username: req.body.username
+	  })
+	  userModel.register(userData, req.body.password)
+	    .then(function (registeredUser) {
+	      passport.authenticate('local')(req, res, function () {
+	        res.redirect("/profile");
+	      })
+	    })
+	    .catch(function (err) {
+	      console.log(err);
+	      res.redirect("/login");
+	    })
+	});
+
+//paste code for login
+
+	router.post("/login", passport.authenticate('local', {
+	  successRedirect: "/profile",
+	  failureRedirect: "/login"
+	}), function (req, res) { })
+
+//paste code for logout
+
+	router.get("/logout", function (req, res) {
+	  req.logOut(function(err){
+	    if(err) throw err;
+	    res.redirect("/login")
+	  });
+	})
+
+//code for /profile route
+
+	router.get("/profile", isLoggedIn, function (req, res) {
+	  res.render("profile");
+	})
+
+//function to check if the user is logedin
+
+	function isLoggedIn(req, res, next) {
+	  if (req.isAuthenticated()) {
+	    return next();
+	  }
+	  res.redirect("/login")
+	}
+
+//make route for login page
+
+	router.get("/login", function (req, res) {
+	  res.render("login");
+	})
+
+//make login.ejs
+
+//make a form, set its action to /login method post
+take username,password
+add input type submit
+
+
+//make a /register route
+
+	router.get("/register", function (req, res) {
+	  res.render("register");
+	})
+
+//make register.ejs
+take username,password &  name
+add input type submit
+
+
+//imp add following code to index.js
+
+	const localStrategy = require("passport-local")
+
+	passport.use(new localStrategy(userModel.authenticate()));
+
+
+

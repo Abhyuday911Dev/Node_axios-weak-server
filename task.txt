@@ -1,0 +1,3 @@
+[requests will shoot towards the server it might crash, so make such an architecture 
+that not on every type request the username should be checked but will be checked on 
+every 3rd character entry or if user dosnt type for a few seconds]

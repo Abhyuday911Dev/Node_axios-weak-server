@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="main">
+    <div id="namebtao">
+      <form action="/register" method="post">
+        <input name="name" type="text" placeholder="Name" required autocomplete="off">
+        <input name="username" type="text" placeholder="username" required id="username" autocomplete="off">
+        <input name="password" type="password" placeholder="Password" required autocomplete="off">
+        <button type="submit">SIGN UP</button>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js" integrity="sha512-odNmoc1XJy5x1TMVMdC7EMs3IVdItLPlCeL5vSUPN2llYKMJ2eByTTAIiiuqLg+GdNr9hF6z81p27DArRFKT7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    var timeout;
+
+    document.querySelector('#username').addEventListener('input', function() {
+      that = this;
+      clearTimeout(timeout);
+
+      function checker() {
+        axios.get(`/check/${that.value.trim()}`)
+          .then(function(data) {
+            if (data.data.user) {
+              that.style.border = "red 2px solid";
+            } else {
+              that.style.border = "none";
+            }
+          })
+      }
+
+      if (document.querySelector('#username').value.trim().length) {
+        if (document.querySelector('#username').value.trim().length % 3 === 0) {
+          console.log("check hua");
+          checker();
+        } 
+        else {
+          timeout = setTimeout(function() {
+            checker();
+          }, 1000);
+        }
+      }
+
+
+      // not important
+      if (document.querySelector('#username').value.trim().length === 0) {
+        that.style.border = "none";
+      }
+
+    })
+  </script>
+</body>
+
+</html>
